@@ -232,22 +232,24 @@ class Timemachine_model extends \Model
             
             // Parse log data from the legacy key
             $start = ''; // Start date
-            foreach (explode("\n", $plist["legacy_output"]) as $line) {
-                $date = substr($line, 0, 19);
-                $message = substr($line, 21);
+            if(isset($plist["legacy_output"])){
+                foreach (explode("\n", $plist["legacy_output"]) as $line) {
+                    $date = substr($line, 0, 19);
+                    $message = substr($line, 21);
 
-                if (preg_match('/^Starting (automatic|manual) backup/', $message)) {
-                    $start = $date;
-                } elseif (preg_match('/^Backup completed successfully/', $message)) {
-                    if ($start) {
-                        $this->duration = strtotime($date) - strtotime($start);
-                    } else {
-                        $this->duration = 0;
+                    if (preg_match('/^Starting (automatic|manual) backup/', $message)) {
+                        $start = $date;
+                    } elseif (preg_match('/^Backup completed successfully/', $message)) {
+                        if ($start) {
+                            $this->duration = strtotime($date) - strtotime($start);
+                        } else {
+                            $this->duration = 0;
+                        }
+                        $this->last_success = $date;
+                    } elseif (preg_match('/^Backup failed/', $message)) {
+                        $this->last_failure = $date;
+                        $this->last_failure_msg = $message;
                     }
-                    $this->last_success = $date;
-                } elseif (preg_match('/^Backup failed/', $message)) {
-                    $this->last_failure = $date;
-                    $this->last_failure_msg = $message;
                 }
             }
             

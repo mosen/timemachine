@@ -5,13 +5,15 @@ Reports on Time Machine backup information
 
 Retrieves information from syslog and Time Machine plist
 
-The following information is stored in the table:
+Table Schema
+-----
 
 * id - Unique ID
 * last_success - Datetime of last successful backup
 * last_failure - Datetime of last failure
 * last_failure_msg - Message of the last failure
-* duration - int - Duration in seconds
+* duration - int - Duration in seconds (column is null on 10.12+ clients)
+* timestamp - Unix timestamp when the report was uploaded
 * always_show_deleted_backups_warning - int/bool - Will Time Machine display warning if deleting older backups
 * auto_backup - int/bool - Are automatic backups enabled
 * bytes_available - int - Number of available bytes on backup destination
@@ -43,4 +45,4 @@ The following information is stored in the table:
 * time_capsule_display_name - name of Time Capsule
 * volume_display_name - name of local backup disk
 * destinations - int - number of destinations
-
+* apfs_snapshots - TEXT - dates of all local APFS snapshots

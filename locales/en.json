@@ -75,7 +75,7 @@
     "37": "Error 37: One of the disks being backed up may have been ejected or disconnected from the computer.",
     "38": "Error 38: Time Machine can’t use the disk image because it is read-only.",
     "40": "Error 40: Time Machine couldn’t verify your backups because the backup disk is not available.",
-    "41": "Error 41: Time Machine couldn’t verify your backups. The disk is read-only or unreable",
+    "41": "Error 41: Time Machine couldn’t verify your backups. The disk is read-only or unreadable",
     "42": "Error 42: Time Machine couldn’t verify your backups because verification was interrupted.",
     "44": "Error 44: Time Machine could not delete the backup disk image.",
     "45": "Error 45: The network backup disk does not support the required AFP features.",

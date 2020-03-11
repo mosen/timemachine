@@ -9,19 +9,27 @@ sys.path.insert(0, '/usr/local/munki')
 sys.path.insert(0, '/usr/local/munkireport')
 
 from munkilib import FoundationPlist
-
-def getOsVersion():
-    """Returns the minor OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[1])
+from Foundation import CFPreferencesCopyAppValue
 
 def get_time_machine():
     
-    # Read in com.apple.TimeMachine.plist for processing 
-    try:
-        out = FoundationPlist.readPlist('/Library/Preferences/com.apple.TimeMachine.plist')
-    except Exception:
-        return {}
+    # Create empty out dict
+    out = {}
+        
+    # Add in preference values
+    out["AlwaysShowDeletedBackupsWarning"] = get_pref_value('AlwaysShowDeletedBackupsWarning', 'com.apple.TimeMachine')
+    out["AutoBackup"] = get_pref_value('AutoBackup', 'com.apple.TimeMachine')
+    out["Destinations"] = get_pref_value('Destinations', 'com.apple.TimeMachine')
+    out["DiskLowWarningTime"] = str(get_pref_value('DiskLowWarningTime', 'com.apple.TimeMachine'))
+    out["ExcludeByPath"] = get_pref_value('ExcludeByPath', 'com.apple.TimeMachine')
+    out["HostUUIDs"] = get_pref_value('HostUUIDs', 'com.apple.TimeMachine')
+    out["LastCompactTime"] = str(get_pref_value('LastCompactTime', 'com.apple.TimeMachine'))
+    out["LastConfigurationTraceDate"] = get_pref_value('LastConfigurationTraceDate', 'com.apple.TimeMachine')
+    out["LastDestinationID"] = get_pref_value('LastDestinationID', 'com.apple.TimeMachine')
+    out["LocalizedDiskImageVolumeName"] = get_pref_value('LocalizedDiskImageVolumeName', 'com.apple.TimeMachine')
+    out["MobileBackups"] = get_pref_value('MobileBackups', 'com.apple.TimeMachine')
+    out["SkipSystemFiles"] = get_pref_value('SkipSystemFiles', 'com.apple.TimeMachine')
+    out["SkipPaths"] = get_pref_value('SkipPaths', 'com.apple.TimeMachine')
     
     # If less than 10.12, run legacy log collector
     if getOsVersion() < 12:
@@ -90,6 +98,22 @@ def get_time_machine():
     else:
         return out
     
+def get_pref_value(key, domain):
+    
+    value = CFPreferencesCopyAppValue(key, domain)
+    
+    if(value is not None):
+        return value
+    elif(value is not None and len(value) == 0 ):
+        return ""
+    else:
+        return ""
+  
+def getOsVersion():
+    """Returns the minor OS version."""
+    os_version_tuple = platform.mac_ver()[0].split('.')
+    return int(os_version_tuple[1])
+
 def main():
     
     """Main"""
@@ -107,6 +131,10 @@ def main():
         if sys.argv[1] == 'manualcheck':
             print 'Manual check: skipping'
             exit(0)
+
+    # Set the encoding
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
     # Get results
     info = get_time_machine()

@@ -1,12 +1,5 @@
 <?php $this->view('partials/head'); ?>
 
-<?php
-//Initialize models needed for the table
-new Machine_model;
-new Reportdata_model;
-new Timemachine_model;
-?>
-
 <div class="container">
 
   <div class="row">
@@ -59,7 +52,7 @@ new Timemachine_model;
 
         $('.table th').map(function(){
 
-            columnDefs.push({name: $(this).data('colname'), targets: col});
+            columnDefs.push({name: $(this).data('colname'), targets: col, render: $.fn.dataTable.render.text()});
 
             if($(this).data('sort')){
               mySort.push([col, $(this).data('sort')])
@@ -77,7 +70,7 @@ new Timemachine_model;
                 url: appUrl + '/datatables/data',
                 type: "POST",
                 data: function(d){
-                    d.mrColNotEmpty = "timemachine.id"
+                    d.mrColNotEmpty = "last_success"
                 }
             },
             dom: mr.dt.buttonDom,

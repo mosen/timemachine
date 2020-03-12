@@ -70,7 +70,7 @@
                 url: appUrl + '/datatables/data',
                 type: "POST",
                 data: function(d){
-                    d.mrColNotEmpty = "timemachine.id"
+                    d.mrColNotEmpty = "last_success"
                 }
             },
             dom: mr.dt.buttonDom,

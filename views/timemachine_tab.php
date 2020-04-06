@@ -19,6 +19,29 @@ $(document).on('appReady', function(){
             $('#timemachine-msg').text('');
             $('#timemachine-view').removeClass('hide');
 
+            // Detail view
+            items = data[0];
+            $('.timemachine-last_success')
+               .text(moment(items.last_success + 'Z').fromNow());
+            $('.timemachine-duration')
+               .text(moment.duration(items.duration, "seconds").humanize());
+            $('.timemachine-last_failure_msg').text(function() {
+               var message = items.last_failure_msg
+               if ( ! message.startsWith("Backup failed with error ", 0) && message !== ""){
+                  return i18n.t('timemachine.'+message);
+               } else if (message.startsWith("Backup failed with error ", 0)) {
+                  return message.replace("Backup failed with error ", "Error ");
+               }
+            });
+            $('.timemachine-last_failure').text(function(){
+               if(items.last_failure){
+                  return moment(items.last_failure + 'Z').fromNow();
+               }
+            });
+            $('.timemachine-location_name').text(items.alias_volume_name);
+            $('.timemachine-destinations').text(items.destinations);
+            $('.timemachine-result').text(items.result);
+
             var skipThese = ['id','serial_number','destinations','localized_disk_image_volume_name','alias_volume_name'];
             $.each(data, function(i,d){
 

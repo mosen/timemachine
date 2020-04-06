@@ -1,0 +1,19 @@
+type: table
+i18n_title: timemachine.timemachine
+table_id: timemachine_detail
+icon: fa-clock-o
+table:
+    - i18n_header: backup.last_success
+      class: timemachine-last_success
+    - i18n_header: backup.duration
+      class: timemachine-duration
+    - i18n_header: backup.last_failure_msg
+      class: timemachine-last_failure_msg
+    - i18n_header: backup.last_failure
+      class: timemachine-last_failure
+    - i18n_header: backup.location_name
+      class: timemachine-location_name
+    - i18n_header: backup.destinations
+      class: timemachine-destinations
+    - i18n_header: timemachine.result
+      class: timemachine-result

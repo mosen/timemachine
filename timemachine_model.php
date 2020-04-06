@@ -286,6 +286,7 @@ class Timemachine_model extends \Model
             if (array_key_exists("Destinations", $plist) && array_key_exists("legacy_output", $plist) && $plist["legacy_output"] == "Mac OS X 10.12+ not supported with legacy Time Machine log output") {
                 // Null the duration because we can't get that on 10.12+ *sad panda*
                 $this->duration = null;
+                print_r($plist["Destinations"]);
                 if ($plist["Destinations"][0]["RESULT"] != "0"){
                     // Record failure time using same format as legacy
                     $this->last_failure = date("Y-m-d H:i:s");

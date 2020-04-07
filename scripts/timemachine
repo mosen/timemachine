@@ -19,7 +19,6 @@ def get_time_machine():
     # Add in preference values
     out["AlwaysShowDeletedBackupsWarning"] = get_pref_value('AlwaysShowDeletedBackupsWarning', 'com.apple.TimeMachine')
     out["AutoBackup"] = get_pref_value('AutoBackup', 'com.apple.TimeMachine')
-    out["Destinations"] = get_pref_value('Destinations', 'com.apple.TimeMachine')
     out["DiskLowWarningTime"] = str(get_pref_value('DiskLowWarningTime', 'com.apple.TimeMachine'))
     out["ExcludeByPath"] = get_pref_value('ExcludeByPath', 'com.apple.TimeMachine')
     out["HostUUIDs"] = get_pref_value('HostUUIDs', 'com.apple.TimeMachine')
@@ -30,6 +29,12 @@ def get_time_machine():
     out["MobileBackups"] = get_pref_value('MobileBackups', 'com.apple.TimeMachine')
     out["SkipSystemFiles"] = get_pref_value('SkipSystemFiles', 'com.apple.TimeMachine')
     out["SkipPaths"] = get_pref_value('SkipPaths', 'com.apple.TimeMachine')
+    out["Destinations"] = get_pref_value('Destinations', 'com.apple.TimeMachine')
+    try:
+        out["bytes_available"] = str(out["Destinations"][0]["BytesAvailable"])
+        out["bytes_used"] = str(out["Destinations"][0]["BytesUsed"])
+    except:
+        pass    
     
     # If less than 10.12, run legacy log collector
     if getOsVersion() < 12:
@@ -142,6 +147,7 @@ def main():
     # Write Time Machine results to cache file
     output_plist = os.path.join(cachedir, 'timemachine.plist')
     FoundationPlist.writePlist(info, output_plist)
+#    print FoundationPlist.writePlistToString(info)
 
 if __name__ == "__main__":
     main()

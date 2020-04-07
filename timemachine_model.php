@@ -124,7 +124,7 @@ class Timemachine_model extends \Model
             $ints =  array('always_show_deleted_backups_warning', 'auto_backup', 'bytes_available', 'bytes_used', 'mobile_backups', 'skip_system_files', 'is_network_destination', 'snapshot_count');
 
             // Array of elements nested in Destination array
-            $nested =  array('backup_alias', 'bytes_available', 'bytes_used', 'consistency_scan_date', 'date_of_latest_warning', 'destination_id', 'last_known_encryption_state', 'result', 'root_volume_uuid');
+            $nested =  array('backup_alias', 'consistency_scan_date', 'date_of_latest_warning', 'destination_id', 'last_known_encryption_state', 'result', 'root_volume_uuid');
 
             // Array of booleans
             $bools =  array('always_show_deleted_backups_warning','auto_backup','mobile_backups','skip_system_files','is_network_destination');
@@ -134,8 +134,8 @@ class Timemachine_model extends \Model
                 'latestSnapshotDate' => 'last_success', // The mis-match is correct
                 'AlwaysShowDeletedBackupsWarning' => 'always_show_deleted_backups_warning',
                 'AutoBackup' => 'auto_backup',
-                'BytesAvailable' => 'bytes_available',
-                'BytesUsed' => 'bytes_used',
+                'bytes_available' => 'bytes_available',
+                'bytes_used' => 'bytes_used',
                 'ConsistencyScanDate' => 'consistency_scan_date',
                 'condition' => 'condition',
                 'DateOfLatestWarning' => 'date_of_latest_warning',
@@ -228,31 +228,31 @@ class Timemachine_model extends \Model
             }
 
             // Condense arrays into strings after checking if they exist
-            if (array_key_exists("Destinations",$plist) && array_key_exists("DestinationUUIDs",$plist["Destinations"][0])){
+            if (array_key_exists("Destinations",$plist) && $plist["Destinations"] !== "" && array_key_exists("DestinationUUIDs",$plist["Destinations"][0])){
                 $this->destination_uuids = implode(", ", $plist["Destinations"][0]["DestinationUUIDs"]);
             } else {
                 $this->destination_uuids = null;
             }
 
-            if (array_key_exists("Destinations",$plist) && array_key_exists("SnapshotDates",$plist["Destinations"][0])){
+            if (array_key_exists("Destinations",$plist) && $plist["Destinations"] !== "" && array_key_exists("SnapshotDates",$plist["Destinations"][0])){
                 $this->snapshot_dates = implode(", ", $plist["Destinations"][0]["SnapshotDates"]);
             } else {
                 $this->snapshot_dates = null;
             }
 
-            if (array_key_exists("ExcludeByPath",$plist)){
+            if (array_key_exists("ExcludeByPath",$plist) && $plist["ExcludeByPath"] !== ""){
                 $this->exclude_by_path = implode(", ", $plist["ExcludeByPath"]);
             } else {
                 $this->exclude_by_path = null;
             }
 
-            if (array_key_exists("HostUUIDs",$plist)){
+            if (array_key_exists("HostUUIDs",$plist) && $plist["HostUUIDs"] !== ""){
                 $this->host_uuids = implode(", ", $plist["HostUUIDs"]);
             } else {
                 $this->host_uuids = null;
             }
 
-            if (array_key_exists("SkipPaths",$plist)){
+            if (array_key_exists("SkipPaths",$plist) && $plist["SkipPaths"] !== ""){
                 $this->skip_paths = implode(", ", $plist["SkipPaths"]);
             } else {
                 $this->skip_paths = null;
@@ -286,7 +286,7 @@ class Timemachine_model extends \Model
             if (array_key_exists("Destinations", $plist) && array_key_exists("legacy_output", $plist) && $plist["legacy_output"] == "Mac OS X 10.12+ not supported with legacy Time Machine log output") {
                 // Null the duration because we can't get that on 10.12+ *sad panda*
                 $this->duration = null;
-                print_r($plist["Destinations"]);
+
                 if ($plist["Destinations"][0]["RESULT"] != "0"){
                     // Record failure time using same format as legacy
                     $this->last_failure = date("Y-m-d H:i:s");
@@ -299,7 +299,7 @@ class Timemachine_model extends \Model
                 $this->duration = null;
             }
         }
-        
+
         // Save the data, bees?
         $this->save();
     }

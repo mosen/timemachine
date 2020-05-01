@@ -1,7 +1,7 @@
 type: table
 i18n_title: timemachine.timemachine
 table_id: timemachine_detail
-icon: fa-clock-o
+icon: clock-o
 table:
     - i18n_header: backup.last_success
       class: timemachine-last_success

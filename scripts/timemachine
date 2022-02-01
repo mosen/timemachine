@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/local/munkireport/munkireport-python2
 # Time Machine menu code by frogor, wrapped by tuxudo for MunkiReport
 
 import subprocess

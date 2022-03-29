@@ -124,8 +124,8 @@ def getDarwinVersion():
     return int(darwin_version_tuple[0]) 
 
 def main():
-    
     """Main"""
+
     # Remove old timemachine.sh script, if it exists
     if os.path.isfile(os.path.dirname(os.path.realpath(__file__))+'/timemachine.sh'):
         os.remove(os.path.dirname(os.path.realpath(__file__))+'/timemachine.sh')

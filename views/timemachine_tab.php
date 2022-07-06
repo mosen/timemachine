@@ -58,8 +58,14 @@ $(document).on('appReady', function(){
                         } else if(prop == "duration"){
                            rows = rows + '<tr><th>'+i18n.t('timemachine.'+prop)+'</th><td><span title="'+d[prop]+' '+i18n.t('power.seconds')+'">'+moment.duration(+d[prop], "seconds").humanize()+'</span></td></tr>';
 
+                        } else if((prop == "last_success" || prop == "last_failure") && d[prop] == "None"){
+                           rows = rows + '<tr><th>'+i18n.t('timemachine.'+prop)+'</th><td>' + i18n.t('timemachine.never') + '</td></tr>';
+
                         } else if(prop == "last_success" || prop == "last_failure"){
                            rows = rows + '<tr><th>'+i18n.t('timemachine.'+prop)+'</th><td><span title="' + moment(d[prop]).format('llll') + '">'+moment(d[prop] + 'Z').fromNow()+'</span></td></tr>';
+
+                        } else if((prop == "earliest_snapshot_date" || prop == "latest_snapshot_date") && d[prop] == "None"){
+                           rows = rows + '<tr><th>'+i18n.t('timemachine.'+prop)+'</th><td>' + i18n.t('timemachine.never') + '</td></tr>';
 
                         } else if(prop == "earliest_snapshot_date" || prop == "latest_snapshot_date"){
                            rows = rows + '<tr><th>'+i18n.t('timemachine.'+prop)+'</th><td><span title="' + moment(d[prop]).fromNow() + '">'+moment(d[prop] + 'Z').format('llll')+'</span></td></tr>';

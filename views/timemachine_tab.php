@@ -21,8 +21,13 @@ $(document).on('appReady', function(){
 
             // Detail view
             items = data[0];
-            $('.timemachine-last_success')
-               .text(moment(items.last_success + 'Z').fromNow());
+            $('.timemachine-last_success').text(function(){
+               if(items.last_success && items.last_success == "None"){
+                  return i18n.t('timemachine.never')
+               } else if (items.last_success) {
+                  return moment(items.last_success + 'Z').fromNow();
+               }
+            });
             $('.timemachine-duration')
                .text(moment.duration(items.duration, "seconds").humanize());
             $('.timemachine-last_failure_msg').text(function() {
@@ -34,7 +39,9 @@ $(document).on('appReady', function(){
                }
             });
             $('.timemachine-last_failure').text(function(){
-               if(items.last_failure){
+               if(items.last_failure && items.last_failure == "None"){
+                  return i18n.t('timemachine.never')
+               } else if (items.last_failure) {
                   return moment(items.last_failure + 'Z').fromNow();
                }
             });

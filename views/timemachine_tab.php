@@ -6,7 +6,7 @@
 
 <script>
 $(document).on('appReady', function(){
-	$.getJSON(appUrl + '/module/timemachine/get_tab_data/' + serialNumber, function(data){
+   $.getJSON(appUrl + '/module/timemachine/get_tab_data/' + serialNumber, function(data){
 
         // Check if we have data
         if( data[0]['alias_volume_name'] == null){
@@ -21,13 +21,21 @@ $(document).on('appReady', function(){
 
             // Detail view
             items = data[0];
-            $('.timemachine-last_success')
-               .text(moment(items.last_success + 'Z').fromNow());
+            $('.timemachine-last_success').text(function(){
+               var message = items.last_success
+               if((message && message == "None") || message == null){
+                  return i18n.t('timemachine.never')
+               } else if (message) {
+                  return moment(message + 'Z').fromNow();
+               }
+            });
             $('.timemachine-duration')
                .text(moment.duration(items.duration, "seconds").humanize());
             $('.timemachine-last_failure_msg').text(function() {
                var message = items.last_failure_msg
-               if ( ! message.startsWith("Backup failed with error ", 0) && message !== ""){
+               if ( message == null ){
+                  return ""
+               } else if (! message.startsWith("Backup failed with error ", 0) && message !== ""){
                   return i18n.t('timemachine.'+message);
                } else if (message.startsWith("Backup failed with error ", 0)) {
                   return message.replace("Backup failed with error ", "Error ");
@@ -39,8 +47,22 @@ $(document).on('appReady', function(){
                }
             });
             $('.timemachine-location_name').text(items.alias_volume_name);
-            $('.timemachine-destinations').text(items.destinations);
-            $('.timemachine-result').text(items.result);
+            $('.timemachine-destinations').text(function() {
+               if ( items.destinations ){
+                  return items.destinations
+               } else if (items.network_url){
+                  return items.network_url
+               } else {
+                  return ""
+               }
+            });
+            $('.timemachine-result').text(function() {
+               if ( items.result ){
+                  return i18n.t('timemachine.'+items.result)
+               } else {
+                  return ""
+               }
+            });
 
             var skipThese = ['id','serial_number','destinations','localized_disk_image_volume_name','alias_volume_name'];
             $.each(data, function(i,d){
@@ -154,6 +176,6 @@ $(document).on('appReady', function(){
                                 .append(rows))))
             })
         }
-	});
+   });
 });
 </script>

@@ -1,10 +1,11 @@
-#!/usr/local/munkireport/munkireport-python2
+#!/usr/local/munkireport/munkireport-python3
 # Time Machine menu code by frogor, wrapped by tuxudo for MunkiReport
 
 import subprocess
 import os
 import sys
 import platform
+
 sys.path.insert(0, '/usr/local/munki')
 sys.path.insert(0, '/usr/local/munkireport')
 
@@ -36,29 +37,29 @@ def get_time_machine():
     except:
         pass    
     
-    # If less than 10.12, run legacy log collector
-    if getOsVersion() < 12:
+    # If less than 10.12 (Darwin 16), run legacy log collector
+    if getDarwinVersion() < 16:
         # Get legacy informtion, only supported on 10.6-10.11
         from subprocess import Popen, PIPE
         stdout = Popen("/usr/bin/syslog -F '$((Time)(utc)) $Message' -k Sender com.apple.backupd -k Time ge -7d -k Message R '^(Backup|Starting).*'", shell=True, stdout=PIPE).stdout
         output = stdout.read()
-        out['legacy_output'] = output
+        out['legacy_output'] = output.decode()
     else:
         out['legacy_output'] = "Mac OS X 10.12+ not supported with legacy Time Machine log output"
         
-    # Check if 10.13 or higher and get data about APFS local snapshots
-    if getOsVersion() > 12:
+    # Check if greater than 10.12 (Darwin 16) or higher and get data about APFS local snapshots
+    if getDarwinVersion() > 16:
         cmd = ['/usr/bin/tmutil', 'listlocalsnapshotdates', '/']
         proc = subprocess.Popen(cmd, shell=False, bufsize=-1,
                         stdin=subprocess.PIPE,
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, unused_error) = proc.communicate()
-        out['apfs_snapshots'] = output
+        out['apfs_snapshots'] = output.decode()
     else:
         out['apfs_snapshots'] = ""
   
-    # Check if 10.9 or higher and extract extra data from Time Machine menu item. Extraction does not work on <10.8
-    if getOsVersion() > 8:
+    # Check if higher than 10.8 (Darwin 12) and extract extra data from Time Machine menu item. Extraction does not work on <10.8 (Darwin 12)
+    if getDarwinVersion() > 12:
 
         # Get extra data from menu item. Thanks frogor!
         from Foundation import NSBundle
@@ -114,37 +115,26 @@ def get_pref_value(key, domain):
     else:
         return ""
   
-def getOsVersion():
-    """Returns the minor OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[1])
+def getDarwinVersion():
+    """Returns the Darwin version."""
+    # Catalina -> 10.15.7 -> 19.6.0 -> 19
+    # os_version_tuple = platform.mac_ver()[0].split('.')
+    # return int(os_version_tuple[1])
+    darwin_version_tuple = platform.release().split('.')
+    return int(darwin_version_tuple[0]) 
 
 def main():
-    
     """Main"""
+
     # Remove old timemachine.sh script, if it exists
     if os.path.isfile(os.path.dirname(os.path.realpath(__file__))+'/timemachine.sh'):
         os.remove(os.path.dirname(os.path.realpath(__file__))+'/timemachine.sh')
-        
-    # Create cache dir if it does not exist
-    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
-    if not os.path.exists(cachedir):
-        os.makedirs(cachedir)
-
-    # Skip manual check
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'manualcheck':
-            print 'Manual check: skipping'
-            exit(0)
-
-    # Set the encoding
-    reload(sys)
-    sys.setdefaultencoding('utf8')
 
     # Get results
     info = get_time_machine()
     
     # Write Time Machine results to cache file
+    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'timemachine.plist')
     FoundationPlist.writePlist(info, output_plist)
 #    print FoundationPlist.writePlistToString(info)

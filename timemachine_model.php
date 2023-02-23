@@ -121,15 +121,15 @@ class Timemachine_model extends \Model
             $plist = $parser->toArray();
 
             // Array of ints
-            $ints =  array('always_show_deleted_backups_warning', 'auto_backup', 'bytes_available', 'bytes_used', 'mobile_backups', 'skip_system_files', 'is_network_destination', 'snapshot_count');
+            $ints = array('always_show_deleted_backups_warning', 'auto_backup', 'bytes_available', 'bytes_used', 'mobile_backups', 'skip_system_files', 'snapshot_count');
 
             // Array of elements nested in Destination array
-            $nested =  array('backup_alias', 'consistency_scan_date', 'date_of_latest_warning', 'destination_id', 'last_known_encryption_state', 'result', 'root_volume_uuid');
+            $nested = array('backup_alias', 'consistency_scan_date', 'date_of_latest_warning', 'destination_id', 'last_known_encryption_state', 'result', 'root_volume_uuid');
 
             // Array of booleans
-            $bools =  array('always_show_deleted_backups_warning','auto_backup','mobile_backups','skip_system_files','is_network_destination');
+            $bools = array('always_show_deleted_backups_warning','auto_backup','mobile_backups','skip_system_files', 'is_network_destination');
 
-            // Translate battery strings to db fields
+            // Translate strings to db fields
             $translate = array(
                 'latestSnapshotDate' => 'last_success', // The mis-match is correct
                 'AlwaysShowDeletedBackupsWarning' => 'always_show_deleted_backups_warning',
@@ -164,15 +164,15 @@ class Timemachine_model extends \Model
             // Traverse the xml with translations
             foreach ($translate as $search => $field) {  
                 // If key is not empty, save it to the object
-                if (! empty($plist[$search]) && ! in_array($field, $nested) && $plist[$search] != "None" && isset($plist[$search])) { 
+                if (! empty($plist[$search]) && ! in_array($field, $nested) && ! in_array($field, $bools) && $plist[$search] != "None" && isset($plist[$search])) {
                     $this->$field = $plist[$search];
                 } else if (in_array($field, $nested) && isset($plist["Destinations"][0][$search])){
                     // If a nested element, extract from nested array
                     $this->$field = $plist["Destinations"][0][$search];
-                } else if (array_key_exists($search, $plist) && in_array($field, $bools) && $plist[$search] == true){
+                } else if (array_key_exists($search, $plist) && in_array($field, $bools) && ($plist[$search] == "True" || $plist[$search] == true)){
                     // If true boolean, set accordingly
                     $this->$field = '1';
-                } else if (array_key_exists($search, $plist) && in_array($field, $bools) && $plist[$search] == false){
+                } else if (array_key_exists($search, $plist) && in_array($field, $bools) && ($plist[$search] == "False" || $plist[$search] == false)){
                     // If false boolean, set accordingly
                     $this->$field = '0';
                 } else if ( ! array_key_exists($search, $plist) && in_array($field, $bools)){

@@ -66,9 +66,12 @@ def get_time_machine():
         TMMenu = NSBundle.bundleWithPath_('/System/Library/CoreServices/Menu Extras/TimeMachine.menu')
         AppleTMSettings = TMMenu.classNamed_('AppleTMSettings')
 
-        settings = AppleTMSettings.sharedSettings()
+        try:
+            settings = AppleTMSettings.sharedSettings()
+            current_dest = settings.currentDestination()
 
-        current_dest = settings.currentDestination()
+        except:
+            return out
 
         # Check to make sure Time Machine is enabled
         if str(current_dest) != "None":

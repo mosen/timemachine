@@ -5,12 +5,14 @@ import subprocess
 import os
 import sys
 import platform
+import string
 
 sys.path.insert(0, '/usr/local/munki')
 sys.path.insert(0, '/usr/local/munkireport')
 
 from munkilib import FoundationPlist
 from Foundation import CFPreferencesCopyAppValue
+from mac_alias import Alias # https://github.com/dmgbuild/mac_alias, 2022-12-05
 
 def get_time_machine():
     
@@ -45,7 +47,7 @@ def get_time_machine():
         output = stdout.read()
         out['legacy_output'] = output.decode()
     else:
-        out['legacy_output'] = "Mac OS X 10.12+ not supported with legacy Time Machine log output"
+        out['legacy_output'] = "macOS 10.12+ not supported with legacy Time Machine log output"
         
     # Check if greater than 10.12 (Darwin 16) or higher and get data about APFS local snapshots
     if getDarwinVersion() > 16:
@@ -57,9 +59,15 @@ def get_time_machine():
         out['apfs_snapshots'] = output.decode()
     else:
         out['apfs_snapshots'] = ""
+
+    # Process Destinations array to fill in missing data on Ventrua+
+    if "Destinations" in out and "Destinations"[0] and "SnapshotDates" in out["Destinations"][0]:
+        out['snapshot_count'] = len(out["Destinations"][0]["SnapshotDates"])
+        out['latestSnapshotDate'] = str(out["Destinations"][0]["SnapshotDates"][out['snapshot_count']-1])
+        out['earliest_snapshot_date'] = str(out["Destinations"][0]["SnapshotDates"][0])
   
-    # Check if higher than 10.8 (Darwin 12) and extract extra data from Time Machine menu item. Extraction does not work on <10.8 (Darwin 12)
-    if getDarwinVersion() > 12:
+    # Check if higher than 10.8 (Darwin 12) and lower than Ventura (Darwin 22) and extract extra data from Time Machine menu item. Extraction does not work on less than 10.8 (Darwin 12) or greater than Monterey (Darwin 21)
+    if getDarwinVersion() > 12 and getDarwinVersion() < 22:
 
         # Get extra data from menu item. Thanks frogor!
         from Foundation import NSBundle
@@ -76,25 +84,14 @@ def get_time_machine():
         # Check to make sure Time Machine is enabled
         if str(current_dest) != "None":
 
-            # Commented out values never return anything but static data
-
             out['alias_volume_name'] = current_dest.aliasVolumeName()
             out['is_network_destination'] = str(current_dest.isNetworkDestination())
             out['network_url'] = str(current_dest.networkURL())
             out['mount_point'] = str(current_dest.mountPoint())
-            #out['is_configured_destination'] = str(current_dest.isConfiguredDestination())
-            #out['backup_state'] = str(current_dest.backupState())
-            #out['percent_backed_up'] = str(current_dest.percentBackedUp())
             out['volume_display_name'] = str(current_dest.volumeDisplayName())
             out['server_display_name'] = str(current_dest.serverDisplayName())
             out['time_capsule_display_name'] = str(current_dest.timeCapsuleDisplayName())
-            #out['update_pending'] = str(current_dest.updatePending())
-            #out['latest_backup_result_severity'] = str(current_dest.latestBackupResultSeverity())
-            #out['order'] = str(current_dest.order())
-            #out['estimated_seconds_remaining'] = str(current_dest.estimatedSecondsRemaining())
             out['latestSnapshotDate'] = str(current_dest.latestSnapshotDate())
-            #out['percent_converted'] = str(current_dest.percentConverted())
-            #out['is_converting'] = str(current_dest.isConverting())
             out['earliest_snapshot_date'] = str(current_dest.earliestSnapshotDate())
             out['snapshot_count'] = str(current_dest.snapshotCount())
 
@@ -103,7 +100,37 @@ def get_time_machine():
         else:
 
             return out
-        
+
+    # Check if greater than Monterey (Darwin 21), parse the alias because the TimeMachine.menu doesn't have any we need anymore
+    elif getDarwinVersion() > 21:
+
+        # Process Destinations array to fill in missing data on Ventrua+
+        if "Destinations" in out and "Destinations"[0] and "BackupAlias" in out["Destinations"][0]:
+            tm_alias = Alias.from_bytes(out["Destinations"][0]["BackupAlias"])
+
+            # Check if network destination
+            if tm_alias.volume.network_mount_info == "None":
+                out['is_network_destination'] = "0"
+            else:
+                out['is_network_destination'] = "1"
+
+            if tm_alias.volume.posix_path != None:
+                out['mount_point'] = tm_alias.volume.posix_path
+
+            if tm_alias.target.filename != None:
+                out['alias_volume_name'] = tm_alias.target.filename
+
+            if tm_alias.target.folder_name != None:
+                out['volume_display_name'] = tm_alias.target.folder_name
+
+            if tm_alias.volume.network_mount_info != None:
+                out['network_url'] = tm_alias.volume.network_mount_info.decode("utf-8", errors="ignore").replace("None","").replace("<cifs","")
+
+            return out
+
+        else:
+            return out
+
     else:
         return out
     
@@ -140,7 +167,6 @@ def main():
     cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'timemachine.plist')
     FoundationPlist.writePlist(info, output_plist)
-#    print FoundationPlist.writePlistToString(info)
 
 if __name__ == "__main__":
     main()

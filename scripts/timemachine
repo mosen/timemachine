@@ -108,12 +108,6 @@ def get_time_machine():
         if "Destinations" in out and "Destinations"[0] and "BackupAlias" in out["Destinations"][0]:
             tm_alias = Alias.from_bytes(out["Destinations"][0]["BackupAlias"])
 
-            # Check if network destination
-            if tm_alias.volume.network_mount_info == "None":
-                out['is_network_destination'] = "0"
-            else:
-                out['is_network_destination'] = "1"
-
             if tm_alias.volume.posix_path != None:
                 out['mount_point'] = tm_alias.volume.posix_path
 
@@ -123,8 +117,13 @@ def get_time_machine():
             if tm_alias.target.folder_name != None:
                 out['volume_display_name'] = tm_alias.target.folder_name
 
+            # Check if network destination
             if tm_alias.volume.network_mount_info != None:
-                out['network_url'] = tm_alias.volume.network_mount_info.decode("utf-8", errors="ignore").replace("None","").replace("<cifs","")
+                printable = set(string.printable)
+                out['network_url'] = ''.join(filter(lambda x: x in printable, tm_alias.volume.network_mount_info.decode("utf-8", errors="ignore"))).replace("<cifs","")
+                out['is_network_destination'] = "1"
+            else:
+                out['is_network_destination'] = "0"
 
             return out
 

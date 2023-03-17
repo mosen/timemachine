@@ -33,6 +33,7 @@ def get_time_machine():
     out["SkipSystemFiles"] = get_pref_value('SkipSystemFiles', 'com.apple.TimeMachine')
     out["SkipPaths"] = get_pref_value('SkipPaths', 'com.apple.TimeMachine')
     out["Destinations"] = get_pref_value('Destinations', 'com.apple.TimeMachine')
+
     try:
         out["bytes_available"] = str(out["Destinations"][0]["BytesAvailable"])
         out["bytes_used"] = str(out["Destinations"][0]["BytesUsed"])
@@ -61,7 +62,7 @@ def get_time_machine():
         out['apfs_snapshots'] = ""
 
     # Process Destinations array to fill in missing data on Ventrua+
-    if "Destinations" in out and "Destinations"[0] and "SnapshotDates" in out["Destinations"][0]:
+    if "Destinations" in out and 0 < len(out["Destinations"]) and "SnapshotDates" in out["Destinations"][0]:
         out['snapshot_count'] = len(out["Destinations"][0]["SnapshotDates"])
         out['latestSnapshotDate'] = str(out["Destinations"][0]["SnapshotDates"][out['snapshot_count']-1])
         out['earliest_snapshot_date'] = str(out["Destinations"][0]["SnapshotDates"][0])
@@ -105,7 +106,7 @@ def get_time_machine():
     elif getDarwinVersion() > 21:
 
         # Process Destinations array to fill in missing data on Ventrua+
-        if "Destinations" in out and "Destinations"[0] and "BackupAlias" in out["Destinations"][0]:
+        if "Destinations" in out and 0 < len(out["Destinations"]) and "BackupAlias" in out["Destinations"][0]:
             tm_alias = Alias.from_bytes(out["Destinations"][0]["BackupAlias"])
 
             if tm_alias.volume.posix_path != None:

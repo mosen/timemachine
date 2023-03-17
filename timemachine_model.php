@@ -283,7 +283,7 @@ class Timemachine_model extends \Model
             }
 
             // Fill in older legacy values
-            if (array_key_exists("Destinations", $plist) && array_key_exists("legacy_output", $plist) && $plist["legacy_output"] == "Mac OS X 10.12+ not supported with legacy Time Machine log output") {
+            if (array_key_exists("Destinations", $plist) && array_key_exists("legacy_output", $plist) && ($plist["legacy_output"] == "Mac OS X 10.12+ not supported with legacy Time Machine log output" || $plist["legacy_output"] == "macOS 10.12+ not supported with legacy Time Machine log output")) {
                 // Null the duration because we can't get that on 10.12+ *sad panda*
                 $this->duration = null;
 

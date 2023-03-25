@@ -259,7 +259,7 @@ class Timemachine_model extends \Model
             }
 
             // Set destinations count
-            if (array_key_exists("Destinations",$plist)){
+            if (array_key_exists("Destinations",$plist) && is_array($plist["Destinations"])){
                 $this->destinations = count($plist["Destinations"]);
             } else {
                 $this->destinations = "0";

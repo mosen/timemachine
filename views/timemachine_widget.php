@@ -18,7 +18,7 @@ $(document).on('appUpdate', function(e, lang) {
     		//alert(data.error);
     		return;
     	}
-		
+
 		var card = $('#time-machine-status-widget div.card-body'),
 			baseUrl = appUrl + '/show/listing/timemachine/timemachine';
 		card.empty();
